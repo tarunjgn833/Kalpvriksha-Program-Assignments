@@ -2,17 +2,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include "stack.h"
 
 #define MAX_EXPR_LEN 100
-#define MAX_STACK_SIZE 100
 
-const char operators[] = {'*', '/', '+', '-'};
-
-typedef struct
-{
-    int items[MAX_STACK_SIZE];
-    int top;
-} Stack;
+const char operators[] = {'*', '/', '+', '-'}; //valid operators
 
 typedef enum
 {
@@ -21,46 +15,8 @@ typedef enum
     ERROR_INVALID_EXPRESSION,
 } ErrorCode;
 
-// stack:
-void initStack(Stack *stack)
-{
-    stack->top = -1;
-}
-
-int isEmpty(Stack *stack)
-{
-    return stack->top == -1;
-}
-
-void push(Stack *stack, int value)
-{
-    if (stack->top < MAX_STACK_SIZE - 1)
-    {
-        stack->items[++(stack->top)] = value;
-    }
-    else
-    {
-        printf("Error: Stack overflow\n");
-        exit(EXIT_FAILURE);
-    }
-}
-
-int pop(Stack *stack)
-{
-    if (!isEmpty(stack))
-    {
-        return stack->items[(stack->top)--];
-    }
-    else
-    {
-        printf("Error: Stack underflow\n");
-        exit(EXIT_FAILURE);
-    }
-}
-
 // program:
-
-int is_operator(char ch)
+int is_valid_operator(char ch)
 {
     for (int i = 0; i < sizeof(operators); i++)
     {
@@ -70,10 +26,19 @@ int is_operator(char ch)
     return 0;
 }
 
-int opr_priority(char op)
+int get_operator_precedence(char op)
 {
-    return (op == '+' || op == '-') ? 1 : (op == '*' || op == '/') ? 2
-                                                                   : 0;
+    switch (op)
+    {
+    case '+':
+    case '-':
+        return 1;
+    case '*':
+    case '/':
+        return 2;
+    default:
+        return 0;
+    }
 }
 
 void handle_error(ErrorCode error)
@@ -91,7 +56,7 @@ void handle_error(ErrorCode error)
     }
 }
 
-int calculate(int a, int b, char op, ErrorCode *error)
+int perform_operation(int a, int b, char op, ErrorCode *error)
 {
     switch (op)
     {
@@ -113,60 +78,99 @@ int calculate(int a, int b, char op, ErrorCode *error)
     }
 }
 
-int evaluate_expr(const char *expr, ErrorCode *error)
+int parse_number(const char *expr, int *index, int expr_len, int *sign, ErrorCode *error)
 {
-    Stack values, ops;
-    initStack(&values);
-    initStack(&ops);
+    int value = 0;
+    *sign = 1;
+
+    if (expr[*index] == '-')
+    {
+        *sign = -1;
+        (*index)++;
+        if (*index >= expr_len || !isdigit(expr[*index]))
+        {
+            *error = ERROR_INVALID_EXPRESSION;
+            return 0;
+        }
+    }
+    // parses characters of expression to number
+    while (*index < expr_len && (isspace(expr[*index]) || isdigit(expr[*index])))
+    {
+        if (isdigit(expr[*index]))
+            value = (value * 10) + (expr[*index] - '0');
+        (*index)++;
+    }
+
+    return value;
+}
+
+int final_evaluation(Stack *value_stack, Stack *operator_stack, ErrorCode *error)
+{
+    while (!operator_stack->is_empty(operator_stack))
+    {
+        if (value_stack->is_empty(value_stack))
+        {
+            *error = ERROR_INVALID_EXPRESSION;
+            return 0;
+        }
+
+        int operand2 = value_stack->pop(value_stack);
+        int operand1 = value_stack->pop(value_stack);
+        char current_operator = (char)operator_stack->pop(operator_stack);
+
+        int result = perform_operation(operand1, operand2, current_operator, error);
+        if (*error != NO_ERROR)
+            return 0;
+
+        value_stack->push(value_stack, result);
+    }
+
+    if (value_stack->top != 1)
+    {
+        *error = ERROR_INVALID_EXPRESSION;
+        return 0;
+    }
+    return value_stack->pop(value_stack);
+}
+
+int evaluate_expression(const char *expr, ErrorCode *error)
+{
+    Stack *values_stack = create_stack(50);
+    Stack *operator_stack = create_stack(50);
 
     int i = 0;
+    int result = 0;
     int expr_len = strlen(expr);
-    char currentChar;
-    int lastWasOperator = 1;
+    char current_char;
+    int previous_token_was_operator = 1;
 
     while (i < expr_len)
     {
-        currentChar = expr[i];
+        current_char = expr[i];
 
-        if (currentChar == ' ')
+        // skips spaces
+        if (current_char == ' ')
         {
             i++;
             continue;
         }
-        else if (isdigit(currentChar) || (currentChar == '-' && lastWasOperator))
+        else if (isdigit(current_char) || (current_char == '-' && previous_token_was_operator))
         {
-            int sign = 1;
-            // handles negative integers
-            if (currentChar == '-')
-            {
-                sign = -1;
-                i++;
-                if (i >= expr_len || !isdigit(expr[i]))
-                {
-                    *error = ERROR_INVALID_EXPRESSION;
-                    return 0;
-                }
-                currentChar = expr[i];
-            }
+            int sign;
+            int value = parse_number(expr, &i, expr_len, &sign, error);
+            if (*error != NO_ERROR)
+                return 0;
 
-            int val = 0;
-            while (i < expr_len && (isspace(expr[i]) || isdigit(expr[i])))
-            {
-                if (isdigit(expr[i]))
-                    val = (val * 10) + (expr[i] - '0');
-                i++;
-            }
-
-            push(&values, sign * val);
-            lastWasOperator = 0;
+            values_stack->push(values_stack, sign * value);
+            previous_token_was_operator = 0;
         }
-        else if (is_operator(currentChar))
-        {   
-            if (lastWasOperator)
+        else if (is_valid_operator(current_char))
+        {
+            if (previous_token_was_operator)
             {
-                if (currentChar == '-')
+                if (current_char == '-')
                 {
-                    lastWasOperator = 1;
+                    previous_token_was_operator = 1;
                     i++;
                 }
                 else
@@ -177,18 +181,18 @@ int evaluate_expr(const char *expr, ErrorCode *error)
                 continue;
             }
 
-            while (!isEmpty(&ops) && opr_priority(ops.items[ops.top]) >= opr_priority(currentChar))
+            while (!operator_stack->is_empty(operator_stack) && get_operator_precedence(operator_stack->peek(operator_stack)) >= get_operator_precedence(current_char))
             {
-                int val2 = pop(&values);
-                int val1 = pop(&values);
-                char opr = (char)pop(&ops);
-                int res = calculate(val1, val2, opr, error);
+                int second_operand = values_stack->pop(values_stack);
+                int first_operand = values_stack->pop(values_stack);
+                char opr = (char)operator_stack->pop(operator_stack);
+                int res = perform_operation(first_operand, second_operand, opr, error);
                 if (*error != NO_ERROR)
                     return 0;
-                push(&values, res);
+                values_stack->push(values_stack, res);
             }
-            push(&ops, currentChar);
-            lastWasOperator = 1;
+            operator_stack->push(operator_stack, current_char);
+            previous_token_was_operator = 1;
             i++;
         }
         else
@@ -198,40 +202,27 @@ int evaluate_expr(const char *expr, ErrorCode *error)
         }
     }
 
-    if (lastWasOperator)
-    {
-        *error = ERROR_INVALID_EXPRESSION;
-        return 0;
-    }
-    
-    while (!isEmpty(&ops))
-    {
-        if (isEmpty(&values))
-        {
-            *error = ERROR_INVALID_EXPRESSION;
-            return 0;
-        }
-
-        int val2 = pop(&values);
-        int val1 = pop(&values);
-        char opr = (char)pop(&ops);
-
-        push(&values, calculate(val1, val2, opr, error));
-        if (*error != NO_ERROR)
-            return 0;
-    }
-
-    if (values.top != 0)
+    if (previous_token_was_operator)
     {
         *error = ERROR_INVALID_EXPRESSION;
         return 0;
     }
 
-    return pop(&values);
+    result = final_evaluation(values_stack, operator_stack, error);
+
+    // destroys both stacks, basically frees the arrays inside
+    values_stack->destroy(values_stack);
+    operator_stack->destroy(operator_stack);
+
+    // frees the stack pointers
+    free(values_stack);
+    free(operator_stack);
+
+    return result;
 }
+
 int main()
 {
-
     char input_expr[MAX_EXPR_LEN];
 
     // loop to run the program until user wants to quit
@@ -248,7 +239,7 @@ int main()
         }
 
         ErrorCode error = NO_ERROR;
-        int result = evaluate_expr(input_expr, &error);
+        int result = evaluate_expression(input_expr, &error);
 
         if (error != NO_ERROR)
         {
