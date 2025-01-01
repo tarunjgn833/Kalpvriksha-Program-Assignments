@@ -24,8 +24,8 @@ int main() {
     printf("Modulus (M): ");
     scanf("%lld", &M);
     
-    if (M <= 1 || B <= 0) {
-        printf("Invalid input: M must be > 1 and B > 0\n");
+    if (M <= 1 || B <= 0 || N < 0) {
+        printf("Invalid input: M must be > 1, B > 0, and N >= 0\n");
         return 1;
     }
     
