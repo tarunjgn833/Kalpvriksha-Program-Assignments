@@ -1,34 +1,35 @@
 #include <stdio.h>
 
 //used recursive eponent calculation algorithm
-long long modpower(long long B, long long  N, long long M) {
-    if (N == 0) 
-        return 1%M; 
-    long long result = modpower(B,N/2,M);  
-    result = (result*result)%M;
+long long modpower(long long base, long long  exponent, long long modulus) {
+    if (exponent == 0) 
+        return 1%modulus; 
+        
+    long long result = modpower(base, exponent/2, modulus);  
+    result = (result*result) % modulus;
 
-    if (N%2 == 1) 
-        result = (result*B)%M;
+    if (exponent % 2 == 1) 
+        result = (result * base) % modulus;
     return result;
 }
 
 int main() {
-    long long B, N, M;
+    long long base, exponent, modulus;
     
-    printf("Base (B): ");
-    scanf("%lld", &B);
+    printf("Base : ");
+    scanf("%lld", &base);
     
-    printf("Exponent (N): ");
-    scanf("%lld", &N);
+    printf("Exponent : ");
+    scanf("%lld", &exponent);
     
-    printf("Modulus (M): ");
-    scanf("%lld", &M);
+    printf("Modulus : ");
+    scanf("%lld", &modulus);
     
-    if (M <= 1 || B <= 0 || N < 0) {
-        printf("Invalid input: M must be > 1, B > 0, and N >= 0\n");
+    if (modulus <= 1 || base <= 0 || exponent < 0) {
+        printf("Invalid input: Modulus must be > 1, Base > 0, and Exponent >= 0\n");
         return 1;
     }
     
-    printf("Result: %lld\n", modpower(B, N, M));
+    printf("Result: %lld\n", modpower(base, exponent, modulus));
     return 0;
 }
