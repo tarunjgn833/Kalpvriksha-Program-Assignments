@@ -41,7 +41,7 @@ void validateIP(char *input) {
     int isValid = 1;
     char *ptr = input;
     int itr = 0;
-    int dots = 0;
+    int dotCount = 0;
 
     for (; *ptr != '\0' && isValid; ptr++) {
         if (*ptr == '.') {
@@ -55,9 +55,9 @@ void validateIP(char *input) {
                 isValid = 0;
                 break;
             }
-            dots++;
+            dotCount++;
             itr = 0;
-            if (dots > 3) {
+            if (dotCount > 3) {
                 isValid = 0;
                 break;
             }
@@ -74,7 +74,7 @@ void validateIP(char *input) {
         buffer[itr++] = *ptr;
     }
 
-    if (isValid && dots == 3 && itr > 0) {
+    if (isValid && dotCount == 3 && itr > 0) {
         buffer[itr] = '\0';
         isValid = parse(buffer, itr) != -1;
     } else {
