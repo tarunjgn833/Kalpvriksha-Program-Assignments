@@ -22,7 +22,7 @@ int main()
             scanf("%d", &matrix[i][j]);
             if (*(*(matrix + i) + j) < 1 || *(*(matrix + i) + j) > 100)
             {
-                printf("Error: Number out of bounds at position\n");
+                printf("Error: Number out of bounds at this position.\n");
                 return 1;
             }
         }
