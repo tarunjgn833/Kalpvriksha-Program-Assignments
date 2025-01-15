@@ -24,9 +24,10 @@ int main()
     char input[MAX_INPUT_LEN];
     char output[MAX_INPUT_LEN];
 
+    printf("Enter String: ");
     fgets(input, MAX_INPUT_LEN, stdin);
     input[strcspn(input, "\n")] = '\0';
 
-    printf("%s", removeDuplicates(input, output));
+    printf("Output: %s", removeDuplicates(input, output));
     return 0;
 }

@@ -36,10 +36,12 @@ int main()
     char input[MAX_INPUT_LEN];
     char substr[MAX_INPUT_LEN];
 
+    printf("Enter First String: ");
     scanf("%s", input);
+    printf("Enter Second String: ");
     scanf("%s", substr);
 
-    printf("%d", getSubString(input, substr));
+    printf("\nSubstring: %d", getSubString(input, substr));
 
     return 0;
 }

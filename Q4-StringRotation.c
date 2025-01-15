@@ -68,10 +68,12 @@ int main()
     char input[MAX_INPUT_LEN];
     char substr[MAX_INPUT_LEN];
 
+    printf("Enter First String: ");
     scanf("%s", input);
+    printf("\nEnter Second String: ");
     scanf("%s", substr);
 
-    printf("%s", areRotations(input, substr) ? "true" : "false");
+    printf("\nAre Rotations? : %s", areRotations(input, substr) ? "true" : "false");
 
     return 0;
 }

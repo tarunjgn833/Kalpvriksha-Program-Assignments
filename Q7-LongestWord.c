@@ -43,11 +43,12 @@ int main()
     char input[MAX_INPUT_LEN];
     char output[MAX_INPUT_LEN];
 
+    printf("Enter Input String: ");
     fgets(input, sizeof(input), stdin);
     input[strcspn(input, "\n")] = '\0';
 
     longestWord(input, output);
-    printf("%s", output);
+    printf("Longest Word: %s\n", output);
 
     return 0;
 }

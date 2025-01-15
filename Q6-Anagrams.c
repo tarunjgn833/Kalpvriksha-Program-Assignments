@@ -34,10 +34,12 @@ int main()
 {
     char string1[MAX_INPUT_LEN];
     char string2[MAX_INPUT_LEN];
+    printf("Enter First String: ");
     scanf("%s", string1);
+    printf("\nEnter First String: ");
     scanf("%s", string2);
 
-    printf("%s", areAnagrams(string1, string2) ? "true" : "false");
+    printf("Are Anagrams? :\n%s", areAnagrams(string1, string2) ? "true" : "false");
 
     return 0;
 }

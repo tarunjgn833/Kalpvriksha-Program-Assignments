@@ -30,9 +30,10 @@ int customAtoi(char *string)
 int main()
 {
     char input[MAX_INPUT_LEN];
+    printf("Enter Input: ");
     scanf("%s",input);
     
-    printf("%d", customAtoi(input));
+    printf("\n Ouput: %d", customAtoi(input));
 
     return 0;
 }

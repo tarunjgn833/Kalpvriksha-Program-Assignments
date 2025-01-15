@@ -30,8 +30,9 @@ int main()
     char input[MAX_INPUT_LEN];
 
     fgets(input, sizeof(input), stdin);
+    printf("Enter String: ");
     input[strcspn(input, "\n")] = '\0';
 
-    printf("%d", countWords(input));
+    printf("\n Number of Words: %d", countWords(input));
     return 0;
 }

@@ -31,6 +31,7 @@ int main()
     char input[1000];
     char compressed[1000];
 
+    printf("Enter Input String: ");
     fgets(input, sizeof(input), stdin);
     input[strcspn(input, "\n")] = '\0';
 
@@ -38,11 +39,11 @@ int main()
 
     if (strlen(compressed) < strlen(input))
     {
-        printf("%s\n", compressed);
+        printf("Compressed String: %s\n", compressed);
     }
     else
     {
-        printf("%s\n", input);
+        printf("Original String: %s\n", input);
     }
 
     return 0;
