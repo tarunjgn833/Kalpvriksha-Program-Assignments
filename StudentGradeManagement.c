@@ -32,7 +32,7 @@ int Strcspn(char *input, char delim)
 int scanInt(int *n, int skip)
 {
     char buffer[10];
-    if (skip != 0 || skip != 1)
+    if (skip != 0 && skip != 1)
         skip = 0;
 
     if (fgets(buffer, sizeof(buffer), stdin) != NULL)
@@ -238,6 +238,17 @@ void deleteRecord()
     printf("\nRecord deleted successfully.\n");
 }
 
+void freeAllRecords()
+{
+    Student *current = head;
+    while (current != NULL)
+    {
+        Student *temp = current;
+        current = current->next;
+        free(temp);
+    }
+}
+
 int main()
 {
     int option, validInput;
@@ -274,6 +285,7 @@ int main()
             deleteRecord();
             break;
         case 6:
+            freeAllRecords();
             printf("Exit\n");
             break;
         default:
