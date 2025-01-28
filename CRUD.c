@@ -76,13 +76,14 @@ void display()
 {
     if (head == NULL)
     {
-        printf("\nError: List is Empty!\n");
+        printf("\n Error: List is Empty!\n");
         return;
     }
     Node *current = head;
+    printf("\n");
     while (current != NULL)
     {
-        printf("%d ", current->data);
+        printf(" %d ", current->data);
         current = current->next;
     }
     printf("\n");
@@ -223,7 +224,7 @@ void handleOperation()
 
     while (1)
     {
-        printf("Enter Operation: ");
+        printf("\n Enter Operation: ");
         if (fgets(input, sizeof(input), stdin) == NULL)
         {
             printf("\nError: Failed to read input.\n");
@@ -346,6 +347,16 @@ int main()
         printf("\nError: Number of Operations should be within [1, 100]\n");
         return 1;
     }
+
+    printf("\n ========== CRUD Linked List =============\n\n");
+    printf(" 1 x: Add x to the end. \n");
+    printf(" 2 x: Add x at the beginning. \n");
+    printf(" 3 pos x: Add x at position pos (1-indexed). \n");
+    printf(" 4: Display all elements. \n");
+    printf(" 5 pos x: Update the element at position pos to x. \n");
+    printf(" 6: Delete the first element.\n");
+    printf(" 7: Delete the last element. \n");
+    printf(" 8 pos: Delete the element at position pos (1-indexed). \n");
     while (totalOperations-- > 0)
     {
         handleOperation();
